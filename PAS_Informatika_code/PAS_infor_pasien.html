@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e5a4a">
+  <title>Antrean Pasien</title>
+  <link rel="stylesheet" href="PAS_infor_dokter.css">
+  <link rel="manifest" href="/manifest.json">
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
+  }
+</script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-main">
+      <h1>Antrean Pasien</h1>
+      <span id="conn" class="conn hidden">Menghubungkan…</span>
+    </div>
+    <nav class="role-nav" aria-label="Halaman antrean rumah sakit">
+      <a href="/" aria-current="page">Pasien</a>
+      <a href="/admin">Dokter / Admin</a>
+    </nav>
+  </header>
+  <div id="offlineBanner" class="offline-banner hidden">Koneksi ke server terputus. Menyambung ulang otomatis…</div>
+
+  <main class="container">
+    <section id="enterView" class="card">
+      <h2>Masukkan karcis antrean Anda</h2>
+      <form id="enterForm" novalidate>
+        <label for="numberInput">Nomor antrean</label>
+        <input id="numberInput" type="number" inputmode="numeric" min="1" max="9999" placeholder="Contoh: 12" autocomplete="off">
+        <label for="codeInput" class="mt">Kode karcis (6 huruf/angka)</label>
+        <input id="codeInput" class="code-input" type="text" maxlength="9" placeholder="Contoh: K7QF4M" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <button id="enterBtn" type="submit" class="btn-primary btn-block mt">Buka antrean saya</button>
+      </form>
+      <div id="enterMsg" class="message hidden" role="alert"></div>
+      <p class="note">Nomor dan kode tertera pada karcis dari petugas. Aplikasi ini tidak meminta nama atau data pribadi.</p>
+    </section>
+
+    <section id="ticketView" class="hidden">
+      <div class="card center">
+        <div class="muted">Nomor antrean Anda</div>
+        <div id="ticketNumber" class="ticket-number">-</div>
+        <span id="callBadge" class="badge call-menunggu">Menunggu panggilan</span>
+        <div class="facts">
+          <div class="fact"><div class="k">Menunggu sebelum Anda</div><div class="v" id="aheadCount">-</div></div>
+          <div class="fact"><div class="k">Nomor terakhir dipanggil</div><div class="v" id="lastCalled">-</div></div>
+        </div>
+        <div id="deadlineBox" class="deadline hidden">
+          <div><strong>Segera datang ke loket.</strong> Nomor hangus jika tidak hadir dalam</div>
+          <div class="t" id="countdown">10:00</div>
+          <div class="small">Batas waktu pukul <span id="deadlineAt">-</span></div>
+        </div>
+        <div id="warnMsg" class="message warn hidden" role="alert"></div>
+        <div id="calledNote" class="message info hidden"></div>
+      </div>
+
+      <div class="card">
+        <h2>Kabari dokter tentang kehadiran Anda</h2>
+        <div class="att-buttons">
+          <button type="button" class="att-btn" data-status="di_area">Sudah di area rumah sakit</button>
+          <button type="button" class="att-btn" data-status="perjalanan">Sedang dalam perjalanan</button>
+          <button type="button" class="att-btn" data-status="tidak_datang">Tidak bisa datang</button>
+        </div>
+        <div class="saved-line">
+          Pilihan terakhir yang tersimpan:
+          <span id="attBadge" class="badge att-belum_konfirmasi">Belum memberi kabar</span>
+          <div id="attTime" class="small muted"></div>
+        </div>
+        <div id="attMsg" class="message hidden" role="status"></div>
+      </div>
+
+      <div class="card">
+        <h2>Bunyi panggilan</h2>
+        <button id="soundBtn" type="button" class="btn-outline btn-block">Aktifkan bunyi panggilan</button>
+        <div id="soundMsg" class="message hidden" role="status"></div>
+        <div class="note">
+          <p>Tekan tombol di atas sekali. Anda akan mendengar bunyi tes singkat. Jika tidak terdengar, naikkan volume dan matikan mode senyap.</p>
+          <ul>
+            <li>Biarkan halaman ini <strong>tetap terbuka di layar</strong>. Selama terbuka, layar diusahakan tetap menyala.</li>
+            <li>Bunyi web bisa <strong>tertahan atau tidak berbunyi</strong> saat layar terkunci, saat tab di latar belakang, atau saat browser ditutup.</li>
+            <li>Di iPhone, tombol senyap dapat membisukan bunyi web.</li>
+            <li>Setelah halaman dimuat ulang, tekan tombol aktifkan bunyi lagi.</li>
+            <li>Pesan besar di layar tetap muncul walaupun bunyi gagal diputar.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Aturan keterlambatan</h2>
+        <ul class="rules">
+          <li>Setelah nomor Anda dipanggil, Anda punya <strong id="lateRule">10 menit</strong> untuk datang ke loket.</li>
+          <li>HP memberi peringatan saat sisa waktu 5 menit dan 1 menit.</li>
+          <li>Jika waktu habis dan Anda belum dilayani, nomor <strong>hangus</strong>. Panggilan ulang tidak menambah waktu.</li>
+          <li>Nomor yang hangus hanya bisa diaktifkan lagi oleh petugas.</li>
+        </ul>
+      </div>
+
+      <button id="changeBtn" type="button" class="btn-outline btn-block">Ganti karcis</button>
+    </section>
+  </main>
+
+  <div id="callAlert" class="call-alert hidden" role="alertdialog" aria-labelledby="callAlertTitle">
+    <h2 id="callAlertTitle">Nomor antrean Anda dipanggil</h2>
+    <div class="big" id="callAlertNumber">-</div>
+    <p>Silakan segera menuju loket / ruang pemeriksaan.</p>
+    <p>Nomor hangus jika tidak hadir dalam</p>
+    <div class="acd" id="callAlertCd">10:00</div>
+    <p id="callAlertAudio" class="audio-fail hidden"></p>
+    <button id="callAlertClose" type="button">Saya mengerti</button>
+  </div>
+
+  <script src="PAS_infor_live.js"></script>
+  <script src="PAS_infor_audio.js"></script>
+  <script src="PAS_infor_pasien.js"></script>
+</body>
+</html>

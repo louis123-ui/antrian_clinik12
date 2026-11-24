@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#41469c">
+  <title>Panel Dokter</title>
+  <link rel="stylesheet" href="PAS_infor_dokter.css">
+</head>
+<body class="doctor-page">
+  <header class="topbar">
+    <div class="topbar-main">
+      <h1>Panel Dokter</h1>
+      <div class="top-actions">
+        <span id="conn" class="conn hidden">Menghubungkan…</span>
+        <button id="logoutBtn" type="button" class="btn-ghost hidden">Keluar</button>
+      </div>
+    </div>
+    <nav class="role-nav" aria-label="Halaman antrean rumah sakit">
+      <a href="/">Pasien</a>
+      <a href="/admin" aria-current="page">Dokter / Admin</a>
+    </nav>
+  </header>
+  <div id="offlineBanner" class="offline-banner hidden">
+    Koneksi ke server terputus. Menyambung ulang otomatis… Tombol aksi dinonaktifkan sampai data terbaru diterima.
+  </div>
+
+  <main id="loginView" class="container hidden">
+    <section class="card">
+      <h2>Masuk sebagai dokter</h2>
+      <form id="loginForm" novalidate>
+        <label for="password">Kata sandi</label>
+        <input id="password" type="password" autocomplete="current-password">
+        <button id="loginBtn" type="submit" class="btn-primary btn-block mt">Masuk</button>
+      </form>
+      <div id="loginMsg" class="message hidden" role="alert"></div>
+    </section>
+  </main>
+
+  <main id="dashView" class="container wide hidden">
+    <div class="toolbar">
+      <section class="card">
+        <h2>Tambah nomor antrean</h2>
+        <form id="addForm" class="row" novalidate>
+          <input id="addNumber" type="number" inputmode="numeric" min="1" max="9999" placeholder="Contoh: 12" aria-label="Nomor baru">
+          <button type="submit" class="btn-primary" data-needs-online>Tambah</button>
+        </form>
+        <div id="karcis" class="karcis hidden">
+          <div><div class="small muted">Nomor</div><div class="kn" id="kNum">-</div></div>
+          <div><div class="small muted">Kode karcis</div><div class="kc" id="kCode">-</div></div>
+          <button id="kCopy" type="button" class="btn-outline">Salin</button>
+        </div>
+        <p class="note">Berikan nomor dan kode karcis kepada pasien. Tanpa kode yang benar, pasien tidak bisa membuka antrean.</p>
+      </section>
+      <section class="card">
+        <h2>Panggil nomor tertentu</h2>
+        <form id="callForm" class="row" novalidate>
+          <input id="callNumber" type="number" inputmode="numeric" min="1" max="9999" placeholder="Contoh: 13" aria-label="Nomor yang dipanggil">
+          <button type="submit" class="btn-primary" data-needs-online>Panggil</button>
+        </form>
+        <p class="note">Pasien yang dipanggil punya waktu <span class="late-min">10 menit</span>. Tekan <strong>Hadir</strong> saat pasien tiba. Jika waktu habis, server otomatis menandai nomor hangus.</p>
+      </section>
+    </div>
+    <div id="actionMsg" class="message hidden" role="status" style="margin:0 0 16px"></div>
+
+    <section class="card">
+      <h2>Daftar antrean</h2>
+      <div id="summary" class="summary"></div>
+      <div class="table-wrap">
+        <table class="queue">
+          <thead><tr><th>Nomor</th><th>Kode</th><th>Kehadiran</th><th>Panggilan</th><th>Aksi</th></tr></thead>
+          <tbody id="queueBody"></tbody>
+        </table>
+      </div>
+      <div id="emptyState" class="empty hidden">Belum ada nomor antrean. Tambahkan nomor di atas.</div>
+      <p class="small muted" id="syncInfo"></p>
+    </section>
+  </main>
+
+  <script src="PAS_infor_live.js"></script>
+  <script src="PAS_infor_admin1.js"></script>
+</script>
+</body>
+</html>
